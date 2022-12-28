@@ -61,6 +61,8 @@ func NewProvider(providerConfig options.Provider) (Provider, error) {
 		return NewLinkedInProvider(providerData), nil
 	case options.LoginGovProvider:
 		return NewLoginGovProvider(providerData, providerConfig.LoginGovConfig)
+	case options.MastodonProvider:
+		return NewMastodonProvider(providerData, providerConfig.MastodonConfig)
 	case options.NextCloudProvider:
 		return NewNextcloudProvider(providerData), nil
 	case options.OIDCProvider:
@@ -152,7 +154,7 @@ func newProviderDataFromConfig(providerConfig options.Provider) (*ProviderData, 
 		p.EmailClaim = providerConfig.OIDCConfig.UserIDClaim
 	}
 
-	if p.Scope == "" {
+	if providerConfig.Type == "oidc" && p.Scope == "" {
 		p.Scope = "openid email profile"
 
 		if len(providerConfig.AllowedGroups) > 0 {
@@ -183,7 +185,8 @@ func parseCodeChallengeMethod(providerConfig options.Provider) string {
 func providerRequiresOIDCProviderVerifier(providerType options.ProviderType) (bool, error) {
 	switch providerType {
 	case options.BitbucketProvider, options.DigitalOceanProvider, options.FacebookProvider, options.GitHubProvider,
-		options.GoogleProvider, options.KeycloakProvider, options.LinkedInProvider, options.LoginGovProvider, options.NextCloudProvider:
+		options.GoogleProvider, options.KeycloakProvider, options.LinkedInProvider, options.LoginGovProvider,
+		options.MastodonProvider, options.NextCloudProvider:
 		return false, nil
 	case options.ADFSProvider, options.AzureProvider, options.GitLabProvider, options.KeycloakOIDCProvider, options.OIDCProvider:
 		return true, nil
